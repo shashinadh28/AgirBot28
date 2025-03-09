@@ -25,7 +25,7 @@ const projects = [
     id: 5,
     Title: "Agribot- AI Chatbot For Farmers ",
     Img: "/agribot.png",
-    Link: "https://github.com/shashinadh28/SmartCart-Personalized-Shopping-Experience.git",
+    Link: "https://github.com/shashinadh28/AgirBot28.git",
     Description: "AI-powered chatbot for agricultural assistance"
   },
   {
