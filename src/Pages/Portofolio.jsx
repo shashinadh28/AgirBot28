@@ -5,7 +5,8 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import SwipeableViews from "react-swipeable-views";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
 import { useTheme } from "@mui/material/styles";
 import TechStackIcon from "../components/TechStackIcon";
 import { motion } from "framer-motion";
@@ -275,78 +276,77 @@ export default function Portfolio() {
           </Tabs>
         </AppBar>
 
-        <SwipeableViews
-          axis={theme.direction === "rtl" ? "x-reverse" : "x"}
-          index={value}
-          onChangeIndex={setValue}
-        >
-          {/* Projects Tab */}
-          <TabPanel value={value} index={0} dir={theme.direction}>
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="container mx-auto"
-            >
-              <StyledWrapper className="flex justify-center">
-                <div className="cards">
-                  {displayedProjects.map((project, index) => (
-                    <motion.a
-                      key={project.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      href={project.Link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="card"
+        {/* Replaced SwipeableViews with Swiper */}
+        <div style={{ width: '100%' }}>
+          {value === 0 && (
+            <TabPanel value={value} index={0} dir={theme.direction}>
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="container mx-auto"
+              >
+                <StyledWrapper className="flex justify-center">
+                  <div className="cards">
+                    {displayedProjects.map((project, index) => (
+                      <motion.a
+                        key={project.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        href={project.Link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="card"
+                        data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
+                        data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
+                      >
+                        <div className="text-overlay">{project.Title}</div>
+                        <img src={project.Img} alt={project.Title} />
+                        <div className="description">{project.Description}</div>
+                      </motion.a>
+                    ))}
+                  </div>
+                </StyledWrapper>
+                
+                {projects.length > initialItems && (
+                  <div className="mt-6 w-full flex justify-start">
+                    <ToggleButton
+                      onClick={toggleShowMore}
+                      isShowingMore={showAllProjects}
+                    />
+                  </div>
+                )}
+              </motion.div>
+            </TabPanel>
+          )}
+
+          {value === 1 && (
+            <TabPanel value={value} index={1} dir={theme.direction}>
+              <motion.div 
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="container mx-auto flex justify-center items-center overflow-hidden pb-[5%]"
+              >
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:gap-8 gap-5">
+                  {techStacks.map((stack, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.4, delay: index * 0.05 }}
                       data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
                       data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
                     >
-                      <div className="text-overlay">{project.Title}</div>
-                      <img src={project.Img} alt={project.Title} />
-                      <div className="description">{project.Description}</div>
-                    </motion.a>
+                      <TechStackIcon TechStackIcon={stack.icon} Language={stack.language} />
+                    </motion.div>
                   ))}
                 </div>
-              </StyledWrapper>
-              
-              {projects.length > initialItems && (
-                <div className="mt-6 w-full flex justify-start">
-                  <ToggleButton
-                    onClick={toggleShowMore}
-                    isShowingMore={showAllProjects}
-                  />
-                </div>
-              )}
-            </motion.div>
-          </TabPanel>
-
-          {/* Tech Stack Tab */}
-          <TabPanel value={value} index={1} dir={theme.direction}>
-            <motion.div 
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="container mx-auto flex justify-center items-center overflow-hidden pb-[5%]"
-            >
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:gap-8 gap-5">
-                {techStacks.map((stack, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.4, delay: index * 0.05 }}
-                    data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
-                    data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
-                  >
-                    <TechStackIcon TechStackIcon={stack.icon} Language={stack.language} />
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          </TabPanel>
-        </SwipeableViews>
+              </motion.div>
+            </TabPanel>
+          )}
+        </div>
       </Box>
     </div>
   );
