@@ -12,7 +12,7 @@ import TechStackIcon from "../components/TechStackIcon";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 
-// Manually added projects
+// Manually added projectsdjs
 const projects = [
   {
     id: 1,
