@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
  
 // Then use it like:
-<div className="absolute inset-0" style={{ backgroundImage: `url(${gridSvg})`, opacity: 0.02 }} />
+<div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02]" />
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ExternalLink, Github, Code2, Star,

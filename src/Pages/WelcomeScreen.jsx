@@ -146,7 +146,7 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
                       data-aos-delay="600"
                       className="inline-block px-2 bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent"
                     >
-                      My
+                      Shashinadh's
                     </span>
                   </div>
                   <div>
@@ -155,14 +155,14 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
                       data-aos-delay="800"
                       className="inline-block px-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
                     >
-                      Portfolio
+                      Digital
                     </span>{" "}
                     <span
                       data-aos="fade-up"
                       data-aos-delay="1000"
                       className="inline-block px-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
                     >
-                      Website
+                      Playground
                     </span>
                   </div>
                 </h1>
@@ -185,7 +185,7 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
                   <div className="relative flex items-center gap-2 text-lg sm:text-xl md:text-2xl">
                     <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
                     <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                      <TypewriterEffect text="www.eki.my.id" />
+                      <TypewriterEffect text="https://shashinadh-portfolio2.vercel.app/" />
                     </span>
                   </div>
                 </a>
