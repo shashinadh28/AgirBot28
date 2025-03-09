@@ -104,13 +104,15 @@ const ContactPage = () => {
 
           {/* Contact Form */}
           <form
-            action="https://formsubmit.co/kabirsingh@gmail.com"
+            action="https://formsubmit.co/durgashashinadhwork2@gmail.com"
             method="POST"
             onSubmit={handleSubmit}
             className="space-y-6"
           >
             <input type="hidden" name="_template" value="table" />
             <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_subject" value="New Contact Form Submission" />
+            <input type="hidden" name="_next" value="https://yourdomain.com/thank-you" />
 
             <div data-aos="fade-up" data-aos-delay="100" className="relative group">
               <User className="absolute left-4 top-4 w-5 h-5 text-gray-400 group-focus-within:text-[#6366f1] transition-colors" />

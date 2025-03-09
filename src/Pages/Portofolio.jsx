@@ -1,22 +1,83 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { db, collection } from "../firebase";
-import { getDocs } from "firebase/firestore";
-import PropTypes from "prop-types";
-import SwipeableViews from "react-swipeable-views";
-import { useTheme } from "@mui/material/styles";
+import React, { useState } from "react";
+import { Code, Boxes } from "lucide-react";
 import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import CardProject from "../components/CardProject";
+import Typography from "@mui/material/Typography";
+import SwipeableViews from "react-swipeable-views";
+import { useTheme } from "@mui/material/styles";
 import TechStackIcon from "../components/TechStackIcon";
-import AOS from "aos";
-import "aos/dist/aos.css";
-import Certificate from "../components/Certificate";
-import { Code, Award, Boxes } from "lucide-react";
+import { motion } from "framer-motion";
+import styled from "styled-components";
 
-// Separate ShowMore/ShowLess button component
+// Manually added projects
+const projects = [
+  {
+    id: 1,
+    Title: "House Of Digital",
+    Img: "/House_of_digital.png",
+    Link: "https://house-of-digital-1.vercel.app/",
+    Description: "Digital marketing solution platform (Web development )"
+  },
+  {
+    id: 5,
+    Title: "Agribot- AI Chatbot For Farmers ",
+    Img: "/agribot.png",
+    Link: "https://github.com/shashinadh28/SmartCart-Personalized-Shopping-Experience.git",
+    Description: "AI-powered chatbot for agricultural assistance"
+  },
+  {
+    id: 6,
+    Title: "SmartCart-Personalized-Shopping-Experience",
+    Img: "/ecommerce.png",
+    Link: "https://github.com/shashinadh28/SmartCart-Personalized-Shopping-Experience.git",
+    Description: "Customized e-commerce platform with smart recommendations"
+  },
+  {
+    id: 2,
+    Title: "CoffeeBucks",
+    Img: "/coffeebucks.png",
+    Link: "https://coffee-bucks-xi.vercel.app/",
+    Description: "Coffee shop online ordering platform (Front end Development)"
+  },
+  {
+    id: 3,
+    Title: "WeCure",
+    Img: "/weCure.png",
+    Link: "https://wecure-eight.vercel.app/",
+    Description: "Healthcare solution application (Front end Development)"
+  },
+  {
+    id: 4,
+    Title: "MRKT.AI",
+    Img: "/mrkt.ai.png",
+    Link: "https://mrkt-ai-shashinadh28s-projects.vercel.app/",
+    Description: "AI-powered marketing platform (Front end Development)"
+  },
+];
+
+// Tech stacks data
+const techStacks = [
+  { icon: "html.svg", language: "HTML" },
+  { icon: "css.svg", language: "CSS" },
+  { icon: "javascript.svg", language: "JavaScript" },
+  { icon: "tailwind.svg", language: "Tailwind CSS" },
+  { icon: "nextjs.svg", language: "Next.js" },
+  { icon: "reactjs.svg", language: "React.js" },
+  { icon: "vue.svg", language: "Vue 3" },
+  { icon: "vite.svg", language: "Vite" },
+  { icon: "github.svg", language: "GitHub" },
+  { icon: "java.svg", language: "Java" },
+  { icon: "python.svg", language: "Python" },
+  { icon: "figma.svg", language: "Figma" },
+  { icon: "firebase.svg", language: "Firebase" },
+  { icon: "mongo.svg", language: "MongoDB" },
+  { icon: "express.png", language: "Express.js" },
+  { icon: "nodejs.svg", language: "Node.js" }
+];
+
+// Toggle Button Component from the original file
 const ToggleButton = ({ onClick, isShowingMore }) => (
   <button
     onClick={onClick}
@@ -69,6 +130,7 @@ const ToggleButton = ({ onClick, isShowingMore }) => (
   </button>
 );
 
+// TabPanel Component
 function TabPanel({ children, value, index, ...other }) {
   return (
     <div
@@ -87,12 +149,6 @@ function TabPanel({ children, value, index, ...other }) {
   );
 }
 
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
-
 function a11yProps(index) {
   return {
     id: `full-width-tab-${index}`,
@@ -100,89 +156,26 @@ function a11yProps(index) {
   };
 }
 
-const techStacks = [
-  { icon: "html.svg", language: "HTML" },
-  { icon: "css.svg", language: "CSS" },
-  { icon: "javascript.svg", language: "JavaScript" },
-  { icon: "tailwind.svg", language: "Tailwind CSS" },
-  { icon: "reactjs.svg", language: "ReactJS" },
-  { icon: "vite.svg", language: "Vite" },
-  { icon: "nodejs.svg", language: "Node JS" },
-  { icon: "bootstrap.svg", language: "Bootstrap" },
-  { icon: "firebase.svg", language: "Firebase" },
-  { icon: "MUI.svg", language: "Material UI" },
-  { icon: "vercel.svg", language: "Vercel" },
-  { icon: "SweetAlert.svg", language: "SweetAlert2" },
-];
-
-export default function FullWidthTabs() {
+export default function Portfolio() {
   const theme = useTheme();
   const [value, setValue] = useState(0);
-  const [projects, setProjects] = useState([]);
-  const [certificates, setCertificates] = useState([]);
   const [showAllProjects, setShowAllProjects] = useState(false);
-  const [showAllCertificates, setShowAllCertificates] = useState(false);
   const isMobile = window.innerWidth < 768;
   const initialItems = isMobile ? 4 : 6;
-
-  useEffect(() => {
-    // Initialize AOS once
-    AOS.init({
-      once: false, // This will make animations occur only once
-    });
-  }, []);
-
-  const fetchData = useCallback(async () => {
-    try {
-      const projectCollection = collection(db, "projects");
-      const certificateCollection = collection(db, "certificates");
-
-      const [projectSnapshot, certificateSnapshot] = await Promise.all([
-        getDocs(projectCollection),
-        getDocs(certificateCollection),
-      ]);
-
-      const projectData = projectSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        TechStack: doc.data().TechStack || [],
-      }));
-
-      const certificateData = certificateSnapshot.docs.map((doc) => doc.data());
-
-      setProjects(projectData);
-      setCertificates(certificateData);
-
-      // Store in localStorage
-      localStorage.setItem("projects", JSON.stringify(projectData));
-      localStorage.setItem("certificates", JSON.stringify(certificateData));
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
-  const toggleShowMore = useCallback((type) => {
-    if (type === 'projects') {
-      setShowAllProjects(prev => !prev);
-    } else {
-      setShowAllCertificates(prev => !prev);
-    }
-  }, []);
+  const toggleShowMore = () => {
+    setShowAllProjects(prev => !prev);
+  };
 
   const displayedProjects = showAllProjects ? projects : projects.slice(0, initialItems);
-  const displayedCertificates = showAllCertificates ? certificates : certificates.slice(0, initialItems);
 
   return (
     <div className="md:px-[10%] px-[5%] w-full sm:mt-0 mt-[3rem] bg-[#030014] overflow-hidden" id="Portofolio">
-      {/* Header section - unchanged */}
+      {/* Header Section */}
       <div className="text-center pb-10" data-aos="fade-up" data-aos-duration="1000">
         <h2 className="inline-block text-3xl md:text-5xl font-bold text-center mx-auto text-transparent bg-clip-text bg-gradient-to-r from-[#6366f1] to-[#a855f7]">
           <span style={{
@@ -196,13 +189,13 @@ export default function FullWidthTabs() {
           </span>
         </h2>
         <p className="text-slate-400 max-w-2xl mx-auto text-sm md:text-base mt-2">
-          Explore my journey through projects, certifications, and technical expertise. 
+          Explore my journey through projects and technical expertise. 
           Each section represents a milestone in my continuous learning path.
         </p>
       </div>
 
+      {/* Tabs Section */}
       <Box sx={{ width: "100%" }}>
-        {/* AppBar and Tabs section - unchanged */}
         <AppBar
           position="static"
           elevation={0}
@@ -226,7 +219,6 @@ export default function FullWidthTabs() {
           }}
           className="md:px-4"
         >
-          {/* Tabs remain unchanged */}
           <Tabs
             value={value}
             onChange={handleChange}
@@ -234,7 +226,6 @@ export default function FullWidthTabs() {
             indicatorColor="secondary"
             variant="fullWidth"
             sx={{
-              // Existing styles remain unchanged
               minHeight: "70px",
               "& .MuiTab-root": {
                 fontSize: { xs: "0.9rem", md: "1rem" },
@@ -277,14 +268,9 @@ export default function FullWidthTabs() {
               {...a11yProps(0)}
             />
             <Tab
-              icon={<Award className="mb-2 w-5 h-5 transition-all duration-300" />}
-              label="Certificates"
-              {...a11yProps(1)}
-            />
-            <Tab
               icon={<Boxes className="mb-2 w-5 h-5 transition-all duration-300" />}
               label="Tech Stack"
-              {...a11yProps(2)}
+              {...a11yProps(1)}
             />
           </Tabs>
         </AppBar>
@@ -294,77 +280,150 @@ export default function FullWidthTabs() {
           index={value}
           onChangeIndex={setValue}
         >
+          {/* Projects Tab */}
           <TabPanel value={value} index={0} dir={theme.direction}>
-            <div className="container mx-auto flex justify-center items-center overflow-hidden">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-5">
-                {displayedProjects.map((project, index) => (
-                  <div
-                    key={project.id || index}
-                    data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
-                    data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
-                  >
-                    <CardProject
-                      Img={project.Img}
-                      Title={project.Title}
-                      Description={project.Description}
-                      Link={project.Link}
-                      id={project.id}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-            {projects.length > initialItems && (
-              <div className="mt-6 w-full flex justify-start">
-                <ToggleButton
-                  onClick={() => toggleShowMore('projects')}
-                  isShowingMore={showAllProjects}
-                />
-              </div>
-            )}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="container mx-auto"
+            >
+              <StyledWrapper className="flex justify-center">
+                <div className="cards">
+                  {displayedProjects.map((project, index) => (
+                    <motion.a
+                      key={project.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      href={project.Link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="card"
+                      data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
+                      data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
+                    >
+                      <div className="text-overlay">{project.Title}</div>
+                      <img src={project.Img} alt={project.Title} />
+                      <div className="description">{project.Description}</div>
+                    </motion.a>
+                  ))}
+                </div>
+              </StyledWrapper>
+              
+              {projects.length > initialItems && (
+                <div className="mt-6 w-full flex justify-start">
+                  <ToggleButton
+                    onClick={toggleShowMore}
+                    isShowingMore={showAllProjects}
+                  />
+                </div>
+              )}
+            </motion.div>
           </TabPanel>
 
+          {/* Tech Stack Tab */}
           <TabPanel value={value} index={1} dir={theme.direction}>
-            <div className="container mx-auto flex justify-center items-center overflow-hidden">
-              <div className="grid grid-cols-1 md:grid-cols-3 md:gap-5 gap-4">
-                {displayedCertificates.map((certificate, index) => (
-                  <div
-                    key={index}
-                    data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
-                    data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
-                  >
-                    <Certificate ImgSertif={certificate.Img} />
-                  </div>
-                ))}
-              </div>
-            </div>
-            {certificates.length > initialItems && (
-              <div className="mt-6 w-full flex justify-start">
-                <ToggleButton
-                  onClick={() => toggleShowMore('certificates')}
-                  isShowingMore={showAllCertificates}
-                />
-              </div>
-            )}
-          </TabPanel>
-
-          <TabPanel value={value} index={2} dir={theme.direction}>
-            <div className="container mx-auto flex justify-center items-center overflow-hidden pb-[5%]">
+            <motion.div 
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="container mx-auto flex justify-center items-center overflow-hidden pb-[5%]"
+            >
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:gap-8 gap-5">
                 {techStacks.map((stack, index) => (
-                  <div
+                  <motion.div
                     key={index}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
                     data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
                     data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
                   >
                     <TechStackIcon TechStackIcon={stack.icon} Language={stack.language} />
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </TabPanel>
         </SwipeableViews>
       </Box>
     </div>
   );
 }
+
+const StyledWrapper = styled.div`
+  .cards {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .cards .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    height: 300px;
+    width: 350px;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: 400ms;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .cards .card img {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+  }
+  .cards .card .description {
+    padding: 10px;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    opacity: 0.8;
+    transition: opacity 400ms;
+  }
+  .cards .card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.2);
+    z-index: 1;
+  }
+  .cards:hover > .card:not(:hover) {
+    filter: blur(3px);
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+  .cards .card .text-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    opacity: 0;
+    background: rgba(0, 0, 0, 0.7);
+    transition: opacity 400ms;
+    z-index: 2;
+  }
+  .cards .card:hover .text-overlay {
+    opacity: 1;
+  }
+  
+  @media (max-width: 768px) {
+    .cards .card {
+      width: 100%;
+      max-width: 320px;
+    }
+  }
+`;
